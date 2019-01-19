@@ -1,0 +1,117 @@
+#include <map>
+
+using namespace std
+
+struct node {
+  int value;
+  int index;
+  node *left;
+  node *right;
+};
+
+class RMQ {
+ public:
+  RMQ();
+  RMQ(int *values, int size);
+  ~RMQ();
+  void addValue(int value);
+  int getMin(int start, int end);
+
+ private:
+  int size;
+  node *root;
+  // map<int, int> indexes;
+  void insert(int value);
+  void insertNode(node *new_node, node **cur);
+  void destroyTree(node *leaf);
+
+};
+
+RMQ::RMQ() {
+  size = 0;
+  root = NULL;
+}
+
+RMQ::RMQ(int *values, int size) {
+
+  size = 0;
+  root = NULL;
+
+  for (int i = 0; i < size; i++) {
+    addValue(values[i]);
+  }
+
+}
+
+int getMin(int start, int end) {
+
+  node *cur = root;
+
+  while (cur) {
+
+    if ((cur->index >= start) && (cur->index <= end)) {
+      return cur->value;
+    }
+    else  {
+      cur = cur->index < start ? cur->left : cur->right;
+    }
+  }
+  cerr << "value not found" << endl;
+}
+
+RMQ::~RMQ() {
+  destroyTree(root);
+}
+
+void RMQ::destroyTree(node *leaf) {
+
+  if (!leaf) {
+    return;
+  }
+
+  destroyTree(leaf->left);
+  destroyTree(leaf->right);
+  delete leaf;
+
+}
+
+void RMQ::insert(int value) {
+
+  node new_node = new node;
+  new_node->value = value;
+  new_node->index = size++;
+  new_node->left = NULL;
+  new_node->right = NULL;
+
+  insertNode(new_node, &root); 
+
+}
+
+void RMQ::insertNode(node *new_node, node **cur) {
+
+  if (!(*cur)) {
+    *cur = new_node;
+  }
+  else if (new_node->value < (*cur)->value) {
+    new_node->left = *cur;
+    *cur = new_node;
+  }
+  else {
+    insertNode(new_node, &((*cur)->right));
+  }
+
+}
+
+int main() {
+
+  int size = 10;
+  int array[10] = { 5, 2, 6, 4, 23, 34, 5, 8, 7, 24};
+
+  RMQ algo = new RMQ(array, size);
+
+  cout << algo.getMin(3, 6) << endl;
+
+
+
+
+}
